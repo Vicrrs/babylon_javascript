@@ -32,7 +32,7 @@ function createScene() {
 
     objTask.onSuccess = function (task) {
         task.loadedMeshes.forEach(function (mesh) {
-            mesh.position = new Vector3(0, 0, 0); // Ajuste conforme necessário
+            mesh.position = new Vector3(0, 0, 0);
         });
 
         // Adicionar pontos de interesse dentro do objeto
