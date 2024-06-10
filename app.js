@@ -16,8 +16,8 @@ function createScene() {
     camera.upperBetaLimit = Math.PI / 2;  // Limite superior
 
     // Definir limites para o zoom
-    camera.lowerRadiusLimit = 2;  // Limite mínimo de zoom (ajuste conforme necessário)
-    camera.upperRadiusLimit = 20; // Limite máximo de zoom (ajuste conforme necessário)
+    camera.lowerRadiusLimit = 2;  // Limite mínimo de zoom 
+    camera.upperRadiusLimit = 20; // Limite máximo de zoom 
 
     // Luz hemisférica para iluminação geral
     new HemisphericLight("hemisphericLight", new Vector3(0, 1, 0), scene);
