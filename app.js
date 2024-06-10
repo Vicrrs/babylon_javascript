@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, DirectionalLight, AssetsManager } from '@babylonjs/core';
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, DirectionalLight, AssetsManager, MeshBuilder, StandardMaterial, Color3, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
 import '@babylonjs/loaders/OBJ';
 import * as GUI from '@babylonjs/gui';
 
@@ -8,7 +8,7 @@ const engine = new Engine(canvas, true);
 
 function createScene() {
     const scene = new Scene(engine);
-    const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2, 5, Vector3.Zero(), scene);
+    const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2, 10, new Vector3(0, 1, 0), scene);
     camera.attachControl(canvas, true);
 
     // Definir limites para a rotação da câmera
@@ -17,7 +17,7 @@ function createScene() {
 
     // Definir limites para o zoom
     camera.lowerRadiusLimit = 2;  // Limite mínimo de zoom (ajuste conforme necessário)
-    camera.upperRadiusLimit = 10; // Limite máximo de zoom (ajuste conforme necessário)
+    camera.upperRadiusLimit = 20; // Limite máximo de zoom (ajuste conforme necessário)
 
     // Luz hemisférica para iluminação geral
     new HemisphericLight("hemisphericLight", new Vector3(0, 1, 0), scene);
@@ -34,11 +34,18 @@ function createScene() {
         task.loadedMeshes.forEach(function (mesh) {
             mesh.position = new Vector3(0, 0, 0); // Ajuste conforme necessário
         });
-    }
+
+        // Adicionar pontos de interesse dentro do objeto
+        addPointOfInterest(scene, new Vector3(0, 1, 0), camera);  // Centro da sala
+        addPointOfInterest(scene, new Vector3(1, 1, 0), camera);  // Posição 1
+        addPointOfInterest(scene, new Vector3(-1, 1, 0), camera); // Posição 2
+        addPointOfInterest(scene, new Vector3(0, 1, 1), camera);  // Posição 3
+        addPointOfInterest(scene, new Vector3(0, 1, -1), camera); // Posição 4
+    };
 
     objTask.onError = function (task, message, exception) {
         console.log('Erro ao carregar o modelo:', message, exception);
-    }
+    };
 
     assetsManager.load();
 
@@ -62,6 +69,21 @@ function createScene() {
     slider.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
 
     return scene;
+}
+
+function addPointOfInterest(scene, position, camera) {
+    const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 0.1 }, scene);
+    sphere.position = position;
+
+    const material = new StandardMaterial("material", scene);
+    material.diffuseColor = Color3.Red();
+    sphere.material = material;
+
+    sphere.actionManager = new ActionManager(scene);
+    sphere.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
+        camera.setTarget(position);
+        camera.setPosition(new Vector3(position.x + 0.5, position.y + 0.5, position.z + 0.5));
+    }));
 }
 
 const scene = createScene();
