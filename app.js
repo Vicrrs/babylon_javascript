@@ -1,6 +1,8 @@
 import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, DirectionalLight, AssetsManager } from '@babylonjs/core';
 import '@babylonjs/loaders/OBJ';
+import * as GUI from '@babylonjs/gui';
 
+// Obter o canvas e criar o engine
 const canvas = document.getElementById('renderCanvas');
 const engine = new Engine(canvas, true);
 
@@ -39,6 +41,25 @@ function createScene() {
     }
 
     assetsManager.load();
+
+    // Adicionar GUI
+    const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    const slider = new GUI.Slider();
+    slider.minimum = 2;
+    slider.maximum = 10;
+    slider.value = camera.radius;
+    slider.height = "20px";
+    slider.width = "200px";
+    slider.color = "white";
+    slider.background = "gray";
+    slider.onValueChangedObservable.add(function (value) {
+        camera.radius = value;
+    });
+
+    advancedTexture.addControl(slider);
+    slider.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    slider.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
 
     return scene;
 }

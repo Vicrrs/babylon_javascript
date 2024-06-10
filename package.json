@@ -12,7 +12,8 @@
   "dependencies": {
     "@babylonjs/core": "^7.9.0",
     "@babylonjs/loaders": "^7.9.0",
-    "babylonjs": "^7.9.0"
+    "babylonjs": "^7.9.0",
+    "@babylonjs/gui": "^7.9.0"
   },
   "devDependencies": {
     "@web/dev-server": "^0.4.5"
