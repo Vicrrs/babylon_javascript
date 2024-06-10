@@ -1,4 +1,8 @@
 objs/
+glb/
+lamia-tafnes/
+mesh/
+plys/
 
 # Dependencies
 /node_modules
