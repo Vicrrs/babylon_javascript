@@ -1,6 +1,8 @@
 import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, DirectionalLight, AssetsManager, MeshBuilder, StandardMaterial, Color3, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
 import '@babylonjs/loaders/OBJ';
 import * as GUI from '@babylonjs/gui';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+
 
 // Obter o canvas e criar o engine
 const canvas = document.getElementById('renderCanvas');
@@ -38,9 +40,9 @@ function createScene() {
         // Adicionar pontos de interesse dentro do objeto
         addPointOfInterest(scene, new Vector3(0, 0.3, 0), camera, "images/ponto1.png", "Descrição do ponto 1");  // Centro da sala
         addPointOfInterest(scene, new Vector3(1, 0.3, 0), camera, "images/ponto2.png", "Descrição do ponto 2");  // Posição 1
-        addPointOfInterest(scene, new Vector3(-1, 0.3, 0), camera, "images/ponto3.png", "Descrição do ponto 3"); // Posição 2
+        addPointOfInterest(scene, new Vector3(-1, 0.3, 0), camera, "/home/vicrrs/LAMIA_projects/babylon_javascript/imgs/Lamia.jpg", "lamia"); // Posição 2
         addPointOfInterest(scene, new Vector3(0, 0.3, 0.5), camera, "images/ponto4.png", "Descrição do ponto 4");  // Posição 3
-        addPointOfInterest(scene, new Vector3(0, 0.3, -0.5), camera, "images/ponto5.png", "Descrição do ponto 5"); // Posição 4
+        addPointOfInterest(scene, new Vector3(0, 0.3, -0.5), camera, "/home/vicrrs/LAMIA_projects/babylon_javascript/imgs/LAMIA.png", "Descrição do ponto 5"); // Posição 4
     };
 
     objTask.onError = function (task, message, exception) {
@@ -72,6 +74,8 @@ function createScene() {
 }
 
 function addPointOfInterest(scene, position, camera, imagePath, description) {
+    const mesh = scene.getMeshByName("lamia_mesh"); // Nome do objeto mesh carregado
+
     const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 0.1 }, scene);
     sphere.position = position;
 
@@ -85,8 +89,11 @@ function addPointOfInterest(scene, position, camera, imagePath, description) {
     sphere.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
         if (!clickedOnce) {
             // Primeira ação: mover a câmera para a área de interesse
+            //const cameraPosition = new Vector3(position.x, position.y, position.z - 0.5); // Posição simulada em primeira pessoa
+            const targetPosition = new Vector3(0, 0.3, 0); // Centro da sala
+            const cameraPosition = new Vector3(position.x, 0.1, position.z); // Posição simulada em primeira pessoa
             camera.setTarget(position);
-            camera.setPosition(new Vector3(position.x + 0.5, position.y + 0.5, position.z + 0.5));
+            camera.setPosition(cameraPosition);
             clickedOnce = true;
         } else {
             // Segunda ação: abrir a janela pop-up
@@ -129,6 +136,7 @@ function addPointOfInterest(scene, position, camera, imagePath, description) {
         }
     }));
 }
+
 
 const scene = createScene();
 engine.runRenderLoop(() => scene.render());
