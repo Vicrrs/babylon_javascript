@@ -36,11 +36,11 @@ function createScene() {
         });
 
         // Adicionar pontos de interesse dentro do objeto
-        addPointOfInterest(scene, new Vector3(0, 1, 0), camera);  // Centro da sala
-        addPointOfInterest(scene, new Vector3(1, 1, 0), camera);  // Posição 1
-        addPointOfInterest(scene, new Vector3(-1, 1, 0), camera); // Posição 2
-        addPointOfInterest(scene, new Vector3(0, 1, 1), camera);  // Posição 3
-        addPointOfInterest(scene, new Vector3(0, 1, -1), camera); // Posição 4
+        addPointOfInterest(scene, new Vector3(0, 0.3, 0), camera);  // Centro da sala
+        addPointOfInterest(scene, new Vector3(1, 0.3, 0), camera);  // Posição 1
+        addPointOfInterest(scene, new Vector3(-1, 0.3, 0), camera); // Posição 2
+        addPointOfInterest(scene, new Vector3(0, 0.3, 0.5), camera);  // Posição 3
+        addPointOfInterest(scene, new Vector3(0, 0.3, -0.5), camera); // Posição 4
     };
 
     objTask.onError = function (task, message, exception) {
