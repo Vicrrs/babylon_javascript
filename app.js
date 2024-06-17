@@ -16,8 +16,8 @@ function createScene() {
     camera.upperBetaLimit = Math.PI / 2;  // Limite superior
 
     // Definir limites para o zoom
-    camera.lowerRadiusLimit = 2;  // Limite mínimo de zoom 
-    camera.upperRadiusLimit = 20; // Limite máximo de zoom 
+    camera.lowerRadiusLimit = 2;  // Limite mínimo de zoom
+    camera.upperRadiusLimit = 20; // Limite máximo de zoom
 
     // Luz hemisférica para iluminação geral
     new HemisphericLight("hemisphericLight", new Vector3(0, 1, 0), scene);
@@ -81,8 +81,11 @@ function addPointOfInterest(scene, position, camera) {
 
     sphere.actionManager = new ActionManager(scene);
     sphere.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
-        camera.setTarget(position);
-        camera.setPosition(new Vector3(position.x + 0.5, position.y + 0.5, position.z + 0.5));
+        const targetPosition = new Vector3(0, 0.3, 0); // Centro da sala
+        const cameraPosition = new Vector3(position.x, 0.1, position.z); // Posição simulada em primeira pessoa
+
+        camera.setTarget(targetPosition);
+        camera.setPosition(cameraPosition);
     }));
 }
 
