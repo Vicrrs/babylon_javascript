@@ -36,11 +36,11 @@ function createScene() {
         });
 
         // Adicionar pontos de interesse dentro do objeto
-        addPointOfInterest(scene, new Vector3(0, 0.3, 0), camera);  // Centro da sala
-        addPointOfInterest(scene, new Vector3(1, 0.3, 0), camera);  // Posição 1
-        addPointOfInterest(scene, new Vector3(-1, 0.3, 0), camera); // Posição 2
-        addPointOfInterest(scene, new Vector3(0, 0.3, 0.5), camera);  // Posição 3
-        addPointOfInterest(scene, new Vector3(0, 0.3, -0.5), camera); // Posição 4
+        addPointOfInterest(scene, new Vector3(0, 0.3, 0), camera, "images/ponto1.png", "Descrição do ponto 1");  // Centro da sala
+        addPointOfInterest(scene, new Vector3(1, 0.3, 0), camera, "images/ponto2.png", "Descrição do ponto 2");  // Posição 1
+        addPointOfInterest(scene, new Vector3(-1, 0.3, 0), camera, "images/ponto3.png", "Descrição do ponto 3"); // Posição 2
+        addPointOfInterest(scene, new Vector3(0, 0.3, 0.5), camera, "images/ponto4.png", "Descrição do ponto 4");  // Posição 3
+        addPointOfInterest(scene, new Vector3(0, 0.3, -0.5), camera, "images/ponto5.png", "Descrição do ponto 5"); // Posição 4
     };
 
     objTask.onError = function (task, message, exception) {
@@ -71,7 +71,7 @@ function createScene() {
     return scene;
 }
 
-function addPointOfInterest(scene, position, camera) {
+function addPointOfInterest(scene, position, camera, imagePath, description) {
     const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 0.1 }, scene);
     sphere.position = position;
 
@@ -79,13 +79,54 @@ function addPointOfInterest(scene, position, camera) {
     material.diffuseColor = Color3.Red();
     sphere.material = material;
 
+    let clickedOnce = false;
+
     sphere.actionManager = new ActionManager(scene);
     sphere.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
-        const targetPosition = new Vector3(0, 0.3, 0); // Centro da sala
-        const cameraPosition = new Vector3(position.x, 0.1, position.z); // Posição simulada em primeira pessoa
+        if (!clickedOnce) {
+            // Primeira ação: mover a câmera para a área de interesse
+            camera.setTarget(position);
+            camera.setPosition(new Vector3(position.x + 0.5, position.y + 0.5, position.z + 0.5));
+            clickedOnce = true;
+        } else {
+            // Segunda ação: abrir a janela pop-up
+            const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-        camera.setTarget(targetPosition);
-        camera.setPosition(cameraPosition);
+            const rect1 = new GUI.Rectangle();
+            rect1.width = "400px";
+            rect1.height = "200px";
+            rect1.cornerRadius = 20;
+            rect1.color = "Orange";
+            rect1.thickness = 4;
+            rect1.background = "gray";
+            advancedTexture.addControl(rect1);
+
+            const image = new GUI.Image("image", imagePath);
+            image.width = "100px";
+            image.height = "100px";
+            image.left = "-150px";
+            rect1.addControl(image);
+
+            const text = new GUI.TextBlock();
+            text.text = description;
+            text.color = "white";
+            text.fontSize = 24;
+            rect1.addControl(text);
+
+            // Botão para fechar a janela
+            const closeButton = GUI.Button.CreateSimpleButton("closeButton", "X");
+            closeButton.width = "30px";
+            closeButton.height = "30px";
+            closeButton.color = "white";
+            closeButton.background = "red";
+            closeButton.onPointerUpObservable.add(function() {
+                advancedTexture.removeControl(rect1);
+            });
+            rect1.addControl(closeButton);
+
+            // Resetar a flag
+            clickedOnce = false;
+        }
     }));
 }
 
