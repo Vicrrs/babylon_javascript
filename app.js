@@ -1,8 +1,7 @@
-import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, DirectionalLight, AssetsManager, MeshBuilder, StandardMaterial, Color3, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, DirectionalLight, AssetsManager, MeshBuilder, StandardMaterial, Color3, ActionManager, ExecuteCodeAction, GlowLayer, HighlightLayer } from '@babylonjs/core';
 import '@babylonjs/loaders/OBJ';
 import * as GUI from '@babylonjs/gui';
 import { Texture } from '@babylonjs/core/Materials/Textures/texture';
-
 
 // Obter o canvas e criar o engine
 const canvas = document.getElementById('renderCanvas');
@@ -28,6 +27,10 @@ function createScene() {
     const directionalLight = new DirectionalLight("directionalLight", new Vector3(0, -1, 0), scene);
     directionalLight.position = new Vector3(0, 10, 0);
 
+    // Efeito de brilho
+    const glowLayer = new GlowLayer("glow", scene);
+    const highlightLayer = new HighlightLayer("highlight", scene);
+
     // Carregamento de assets
     const assetsManager = new AssetsManager(scene);
     const objTask = assetsManager.addMeshTask("obj task", "", "lamia-tafnes/", "meshs001.obj");
@@ -38,11 +41,11 @@ function createScene() {
         });
 
         // Adicionar pontos de interesse dentro do objeto
-        addPointOfInterest(scene, new Vector3(0, 0.3, 0), camera, "images/ponto1.png", "Descrição do ponto 1");  // Centro da sala
-        addPointOfInterest(scene, new Vector3(1, 0.3, 0), camera, "images/ponto2.png", "Descrição do ponto 2");  // Posição 1
-        addPointOfInterest(scene, new Vector3(-1, 0.3, 0), camera, "/home/vicrrs/LAMIA_projects/babylon_javascript/imgs/Lamia.jpg", "lamia"); // Posição 2
-        addPointOfInterest(scene, new Vector3(0, 0.3, 0.5), camera, "images/ponto4.png", "Descrição do ponto 4");  // Posição 3
-        addPointOfInterest(scene, new Vector3(0, 0.3, -0.5), camera, "/home/vicrrs/LAMIA_projects/babylon_javascript/imgs/LAMIA.png", "Descrição do ponto 5"); // Posição 4
+        addPointOfInterest(scene, new Vector3(0, 0.3, 0), camera, "images/ponto1.png", "Descrição do ponto 1", new Vector3(0, 0.3, 0), new Vector3(2, 1, 2));  // Centro da sala
+        addPointOfInterest(scene, new Vector3(1, 0.3, 0), camera, "images/ponto2.png", "Descrição do ponto 2", new Vector3(1, 0., 0), new Vector3(3, 1, 3));  // Posição 1
+        addPointOfInterest(scene, new Vector3(-1, 0.3, 0), camera, "/home/vicrrs/LAMIA_projects/babylon_javascript/imgs/Lamia.jpg", "lamia", new Vector3(-1, 0.3, 0), new Vector3(3, 1, -3)); // Posição 2
+        addPointOfInterest(scene, new Vector3(0, 0.3, 0.5), camera, "images/ponto4.png", "Descrição do ponto 4", new Vector3(0, 0.3, 0.5), new Vector3(3, 1, 0.5));  // Posição 3
+        addPointOfInterest(scene, new Vector3(0, 0.3, -0.5), camera, "/home/vicrrs/LAMIA_projects/babylon_javascript/imgs/LAMIA.png", "Descrição do ponto 5", new Vector3(0, 0.3, -0.5), new Vector3(3, 1, -0.5)); // Posição 4
     };
 
     objTask.onError = function (task, message, exception) {
@@ -70,12 +73,66 @@ function createScene() {
     slider.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
     slider.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
 
+    // Adicionar botões de controle de câmera
+    addCameraControls(scene, camera, advancedTexture);
+
+    // Adicionar minimapa
+    addMiniMap(scene);
+
     return scene;
 }
 
-function addPointOfInterest(scene, position, camera, imagePath, description) {
-    const mesh = scene.getMeshByName("lamia_mesh"); // Nome do objeto mesh carregado
+function addCameraControls(scene, camera, advancedTexture) {
+    const buttonWidth = "150px";
+    const buttonHeight = "50px";
 
+    // Botão de órbita
+    const orbitButton = GUI.Button.CreateSimpleButton("orbitButton", "Órbita");
+    orbitButton.width = buttonWidth;
+    orbitButton.height = buttonHeight;
+    orbitButton.color = "white";
+    orbitButton.background = "blue";
+    orbitButton.onPointerUpObservable.add(function() {
+        // Função para habilitar órbita
+        camera.attachControl(canvas, true);
+    });
+    advancedTexture.addControl(orbitButton);
+    orbitButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    orbitButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    orbitButton.top = "20px";
+
+    // Botão de zoom
+    const zoomButton = GUI.Button.CreateSimpleButton("zoomButton", "Zoom");
+    zoomButton.width = buttonWidth;
+    zoomButton.height = buttonHeight;
+    zoomButton.color = "white";
+    zoomButton.background = "green";
+    zoomButton.onPointerUpObservable.add(function() {
+        // Função para habilitar zoom
+        camera.attachControl(canvas, true);
+    });
+    advancedTexture.addControl(zoomButton);
+    zoomButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    zoomButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    zoomButton.top = "80px";
+
+    // Botão de pan
+    const panButton = GUI.Button.CreateSimpleButton("panButton", "Pan");
+    panButton.width = buttonWidth;
+    panButton.height = buttonHeight;
+    panButton.color = "white";
+    panButton.background = "red";
+    panButton.onPointerUpObservable.add(function() {
+        // Função para habilitar pan
+        camera.attachControl(canvas, true);
+    });
+    advancedTexture.addControl(panButton);
+    panButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    panButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    panButton.top = "140px";
+}
+
+function addPointOfInterest(scene, position, camera, imagePath, description, targetPosition, cameraPosition) {
     const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 0.1 }, scene);
     sphere.position = position;
 
@@ -89,10 +146,7 @@ function addPointOfInterest(scene, position, camera, imagePath, description) {
     sphere.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
         if (!clickedOnce) {
             // Primeira ação: mover a câmera para a área de interesse
-            //const cameraPosition = new Vector3(position.x, position.y, position.z - 0.5); // Posição simulada em primeira pessoa
-            const targetPosition = new Vector3(0, 0.3, 0); // Centro da sala
-            const cameraPosition = new Vector3(position.x, 0.1, position.z); // Posição simulada em primeira pessoa
-            camera.setTarget(position);
+            camera.setTarget(targetPosition);
             camera.setPosition(cameraPosition);
             clickedOnce = true;
         } else {
@@ -137,7 +191,37 @@ function addPointOfInterest(scene, position, camera, imagePath, description) {
     }));
 }
 
+function addMiniMap(scene) {
+    const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("minimapUI");
 
+    const minimap = new GUI.Image("minimap", "https://www.babylonjs.com/assets/pirate.jpg");
+    minimap.width = "200px";
+    minimap.height = "200px";
+    minimap.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    minimap.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    advancedTexture.addControl(minimap);
+
+    scene.registerAfterRender(function () {
+        // Atualizar minimapa com a posição atual da câmera
+        const camera = scene.activeCamera;
+        if (camera) {
+            const context = advancedTexture.getContext();
+            context.clearRect(0, 0, advancedTexture.getSize().width, advancedTexture.getSize().height);
+            context.beginPath();
+            context.arc(camera.position.x * 10 + 100, camera.position.z * 10 + 100, 5, 0, 2 * Math.PI);
+            context.fillStyle = "red";
+            context.fill();
+        }
+    });
+}
+
+// Criar e executar a cena
 const scene = createScene();
-engine.runRenderLoop(() => scene.render());
-window.addEventListener('resize', () => engine.resize());
+engine.runRenderLoop(() => {
+    scene.render();
+});
+
+// Redimensionar
+window.addEventListener('resize', function () {
+    engine.resize();
+});
